@@ -1,0 +1,34 @@
+version: '3.8'
+
+
+services:
+
+  todo-backend:
+    image: todo-backend-dev
+    build:
+      context: . # The context will pick this directory as the "build context"
+      dockerfile: dev.Dockerfile # This will simply tell which dockerfile to read
+    volumes:
+      - ./:/usr/src/app # The path can be relative, so ./ is enough to say "the same location as the docker-compose.yml"
+    ports:
+      - 3021:3001
+    container_name: todo-backend-dev # This will name the container hello-front-dev
+    depends_on:
+      - "mongo"
+      - "redis"
+  debug-helper:
+    image: busybox
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: the_database
+    volumes: 
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./mongo_data:/data/db
+  redis:
+    image: redis
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes: # Declare the volume
+      - ./redis_data:/data
